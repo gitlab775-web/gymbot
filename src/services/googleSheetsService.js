@@ -142,7 +142,11 @@ async function upsertSheetMember(member) {
 
   const sheets = getSheetsClient();
   const members = await listSheetMembers();
-  const existing = members.find((item) => item.phone === member.phone);
+  const existing = members.find(
+    (item) =>
+      item.phone === member.phone ||
+      (member.lastPaymentId && item.lastPaymentId === member.lastPaymentId)
+  );
   const sheetName = getSheetName();
   const values = [rowFromMember(member)];
 

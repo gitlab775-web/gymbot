@@ -4,7 +4,16 @@ const { isGoogleSheetsEnabled, sheetColumns } = require("../services/googleSheet
 
 async function getMembers(_req, res) {
   const members = await listMembers();
-  res.json({ members });
+  const uniqueMembers = Array.from(
+    members
+      .reduce((byMemberId, member) => {
+        byMemberId.set(member.memberId || member.phone, member);
+        return byMemberId;
+      }, new Map())
+      .values()
+  );
+
+  res.json({ members: uniqueMembers });
 }
 
 async function exportMembers(_req, res) {
