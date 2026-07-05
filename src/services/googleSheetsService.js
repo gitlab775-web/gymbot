@@ -34,10 +34,16 @@ function getSheetRange() {
 }
 
 function getSheetsClient() {
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY
+  const rawPrivateKey = process.env.GOOGLE_PRIVATE_KEY
     .replace(/^"|"$/g, "")
-    .replace(/\\n/g, "\n")
     .trim();
+  let privateKey = rawPrivateKey;
+
+  if (rawPrivateKey.startsWith("{")) {
+    privateKey = JSON.parse(rawPrivateKey).private_key;
+  }
+
+  privateKey = privateKey.replace(/\\n/g, "\n").trim();
 
   const auth = new google.auth.JWT({
     email: process.env.GOOGLE_CLIENT_EMAIL,
