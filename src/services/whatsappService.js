@@ -1,4 +1,5 @@
 const twilio = require("twilio");
+const { normalizePhone } = require("../utils/phone");
 
 function getProvider() {
   return (process.env.WHATSAPP_PROVIDER || "dummy").toLowerCase();
@@ -6,8 +7,7 @@ function getProvider() {
 
 function toTwilioWhatsAppNumber(phone) {
   const raw = String(phone || "").trim();
-  if (raw.startsWith("whatsapp:")) return raw;
-  return `whatsapp:${raw}`;
+  return `whatsapp:${normalizePhone(raw)}`;
 }
 
 function getTwilioClient() {
