@@ -34,9 +34,14 @@ function getSheetRange() {
 }
 
 function getSheetsClient() {
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY
+    .replace(/^"|"$/g, "")
+    .replace(/\\n/g, "\n")
+    .trim();
+
   const auth = new google.auth.JWT({
     email: process.env.GOOGLE_CLIENT_EMAIL,
-    key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    key: privateKey,
     scopes: ["https://www.googleapis.com/auth/spreadsheets"]
   });
 
