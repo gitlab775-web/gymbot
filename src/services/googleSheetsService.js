@@ -34,13 +34,24 @@ function getSheetRange() {
 }
 
 function getSheetsClient() {
-  const rawPrivateKey = process.env.GOOGLE_PRIVATE_KEY
-    .replace(/^"|"$/g, "")
-    .trim();
+  const rawPrivateKey = process.env.GOOGLE_PRIVATE_KEY.trim();
   let privateKey = rawPrivateKey;
 
-  if (rawPrivateKey.startsWith("{")) {
-    privateKey = JSON.parse(rawPrivateKey).private_key;
+  if (privateKey.startsWith("GOOGLE_PRIVATE_KEY=")) {
+    privateKey = privateKey.split("=").slice(1).join("=");
+  }
+
+  privateKey = privateKey.replace(/^['"`]|['"`]$/g, "").trim();
+
+  if (privateKey.startsWith("{")) {
+    privateKey = JSON.parse(privateKey).private_key;
+  } else if (privateKey.includes('"private_key"')) {
+    privateKey = JSON.parse(privateKey).private_key;
+  } else if (privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
+    const begin = privateKey.indexOf("-----BEGIN PRIVATE KEY-----");
+    const endMarker = "-----END PRIVATE KEY-----";
+    const end = privateKey.indexOf(endMarker) + endMarker.length;
+    privateKey = privateKey.slice(begin, end);
   }
 
   privateKey = privateKey.replace(/\\n/g, "\n").trim();
