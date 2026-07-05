@@ -80,10 +80,20 @@ async function receiveTwilioWebhook(req, res) {
     ["hi", "hello", "hey", "menu", "start"].includes(command) &&
     process.env.TWILIO_PLAN_CONTENT_SID
   ) {
-    startMembershipSelection(phone);
+    const fallbackMenu = startMembershipSelection(phone);
 
-    await sendTwilioContentMessage(phone, process.env.TWILIO_PLAN_CONTENT_SID);
-    return res.type("text/xml").send("<Response></Response>");
+    try {
+      await sendTwilioContentMessage(phone, process.env.TWILIO_PLAN_CONTENT_SID);
+      return res.type("text/xml").send("<Response></Response>");
+    } catch (error) {
+      console.error("[twilio:content-message-failed]", {
+        message: error.message,
+        code: error.code,
+        status: error.status
+      });
+
+      return sendTwiml(res, fallbackMenu);
+    }
   }
 
   const reply = await handleIncomingText({
