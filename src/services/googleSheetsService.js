@@ -56,6 +56,20 @@ function getSheetsClient() {
 
   privateKey = privateKey.replace(/\\n/g, "\n").trim();
 
+  if (privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
+    const body = privateKey
+      .replace("-----BEGIN PRIVATE KEY-----", "")
+      .replace("-----END PRIVATE KEY-----", "")
+      .replace(/\s/g, "");
+    const lines = body.match(/.{1,64}/g) || [];
+
+    privateKey = [
+      "-----BEGIN PRIVATE KEY-----",
+      ...lines,
+      "-----END PRIVATE KEY-----"
+    ].join("\n");
+  }
+
   const auth = new google.auth.JWT({
     email: process.env.GOOGLE_CLIENT_EMAIL,
     key: privateKey,
