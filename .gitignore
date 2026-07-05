@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+
+# Local data and exports
+data/
+*.xlsx
+*.xls
+
+# Local tunnel/tools
+tools/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

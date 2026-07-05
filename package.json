@@ -1,0 +1,31 @@
+{
+  "name": "gym-whatsapp-bot",
+  "version": "1.0.0",
+  "description": "Gym membership automation bot for Twilio WhatsApp, WhatsApp Cloud API, Razorpay, and Google Sheets.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --check src/server.js"
+  },
+  "keywords": [
+    "gym",
+    "whatsapp",
+    "twilio",
+    "whatsapp-cloud-api",
+    "razorpay",
+    "google-sheets"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "googleapis": "^171.4.0",
+    "node-cron": "^4.2.1",
+    "razorpay": "^2.9.6",
+    "twilio": "^6.0.0"
+  }
+}
