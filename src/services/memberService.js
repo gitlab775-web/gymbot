@@ -89,6 +89,7 @@ async function activatePayment(paymentId) {
     const member = await findSheetMemberByPaymentId(paymentId);
 
     if (!member) return null;
+    if (member.status === "active" && member.startDate && member.endDate) return member;
 
     const today = new Date();
     const currentEnd = member.endDate ? new Date(member.endDate) : null;
@@ -114,6 +115,8 @@ async function activatePayment(paymentId) {
   if (memberIndex < 0) return null;
 
   const member = db.members[memberIndex];
+  if (member.status === "active" && member.startDate && member.endDate) return member;
+
   const today = new Date();
   const currentEnd = member.endDate ? new Date(member.endDate) : null;
   const renewalBase = currentEnd && currentEnd > today ? currentEnd : today;
