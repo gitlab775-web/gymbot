@@ -1,5 +1,6 @@
 const { readDatabase, writeDatabase } = require("./localDatabase");
 const { addDays, toSheetDate } = require("../utils/dates");
+const { normalizePhone } = require("../utils/phone");
 const {
   findSheetMemberByPaymentId,
   findSheetMemberByPhone,
@@ -13,12 +14,16 @@ function createMemberId() {
 }
 
 async function findMemberByPhone(phone) {
+  const normalizedPhone = normalizePhone(phone);
+
   if (isGoogleSheetsEnabled()) {
-    return findSheetMemberByPhone(phone);
+    return findSheetMemberByPhone(normalizedPhone);
   }
 
   const db = await readDatabase();
-  return db.members.find((member) => member.phone === phone) || null;
+  return (
+    db.members.find((member) => normalizePhone(member.phone) === normalizedPhone) || null
+  );
 }
 
 async function listMembers() {
@@ -31,12 +36,14 @@ async function listMembers() {
 }
 
 async function createPendingMember({ name, phone, plan, paymentId }) {
+  const normalizedPhone = normalizePhone(phone);
+
   if (isGoogleSheetsEnabled()) {
-    const existing = await findSheetMemberByPhone(phone);
+    const existing = await findSheetMemberByPhone(normalizedPhone);
     const member = {
       memberId: existing?.memberId || createMemberId(),
       name,
-      phone,
+      phone: normalizedPhone,
       plan: plan.label,
       amount: plan.amount,
       startDate: existing?.startDate || "",
@@ -54,7 +61,9 @@ async function createPendingMember({ name, phone, plan, paymentId }) {
   }
 
   const db = await readDatabase();
-  const existingIndex = db.members.findIndex((member) => member.phone === phone);
+  const existingIndex = db.members.findIndex(
+    (member) => normalizePhone(member.phone) === normalizedPhone
+  );
   const now = new Date();
   const existing = existingIndex >= 0 ? db.members[existingIndex] : null;
 

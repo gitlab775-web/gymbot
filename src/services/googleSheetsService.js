@@ -1,5 +1,6 @@
 const { google } = require("googleapis");
 const { plans } = require("../config/plans");
+const { normalizePhone } = require("../utils/phone");
 
 const sheetColumns = [
   "memberId",
@@ -85,7 +86,13 @@ function planDaysFromLabel(label) {
 }
 
 function rowFromMember(member) {
-  return sheetColumns.map((column) => member[column] || "");
+  return sheetColumns.map((column) => {
+    if (column === "phone") {
+      return normalizePhone(member[column] || "");
+    }
+
+    return member[column] || "";
+  });
 }
 
 function memberFromRow(row, rowNumber) {
@@ -95,6 +102,7 @@ function memberFromRow(row, rowNumber) {
     member[column] = row[index] || "";
   });
 
+  member.phone = normalizePhone(member.phone);
   member.amount = Number(member.amount || 0);
   member.planDays = planDaysFromLabel(member.plan);
   member.rowNumber = rowNumber;
@@ -142,9 +150,10 @@ async function upsertSheetMember(member) {
 
   const sheets = getSheetsClient();
   const members = await listSheetMembers();
+  const normalizedPhone = normalizePhone(member.phone);
   const existing = members.find(
     (item) =>
-      item.phone === member.phone ||
+      normalizePhone(item.phone) === normalizedPhone ||
       (member.lastPaymentId && item.lastPaymentId === member.lastPaymentId)
   );
   const sheetName = getSheetName();
@@ -176,7 +185,8 @@ async function findSheetMemberByPhone(phone) {
   const members = await listSheetMembers();
   if (!members) return null;
 
-  return members.find((member) => member.phone === phone) || null;
+  const normalizedPhone = normalizePhone(phone);
+  return members.find((member) => normalizePhone(member.phone) === normalizedPhone) || null;
 }
 
 async function findSheetMemberByPaymentId(paymentId) {
